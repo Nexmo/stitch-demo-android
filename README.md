@@ -1,9 +1,13 @@
-# Nexmo Android Conversation SDK Quickstart 3
+# Nexmo In-App Messaging Android Demo
 
-## Running the example
+## Running the demo
 
-- In `LoginActivity` set the `USER_JWT` & `SECOND_USER_JWT` variables to those generated in [Quickstart 2](../../docs/2-inviting-members.md) (Quickstart 3 doesn't need to generate new JWTs)
+- Clone the [gateway demo server](https://github.com/Nexmo/conversation-gateway) and run it
+
+- Expose the gateway demo server to the web via ngrok, heroku, or glitch
+
+- Create a user or two as well as a conversation via the gateway demo API
 
 - Run the app in Android Studio on two separate emulators/devices
 
-- After clicking the login button, log in as either "jamie" or "alice"
+- After clicking the login button, log in as one of the users you created.
