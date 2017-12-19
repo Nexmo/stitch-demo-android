@@ -11,3 +11,7 @@
 - Run the app in Android Studio on two separate emulators/devices
 
 - After clicking the login button, log in as one of the users you created.
+
+## See it in action
+
+![GIF of demo app running](http://g.recordit.co/0siVwWOvRh.gif)
