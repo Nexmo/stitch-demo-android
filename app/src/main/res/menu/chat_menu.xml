@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/view_users"
+        android:title="View Users"
+        android:icon="@drawable/ic_info_outline_black_24dp"
+        app:showAsAction="always"
+        />
+
+    <item android:id="@+id/invite_users"
+        android:title="Invite User"
+        android:icon="@drawable/ic_person_add_black_24dp"
+        app:showAsAction="always"
+        />
+
+</menu>
