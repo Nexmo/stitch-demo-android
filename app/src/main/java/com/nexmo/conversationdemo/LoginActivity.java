@@ -34,6 +34,7 @@ import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = LoginActivity.class.getSimpleName();
+    public static final String API_URL = "URL FOR MESSAGING GATEWAY HERE";
 
     private Button loginBtn;
     private Button chatBtn;
@@ -66,7 +67,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void authenticate(String username, boolean admin) {
-        AndroidNetworking.get("http://chris-guzman.ngrok.io/api/jwt/{user}")
+        AndroidNetworking.get(API_URL + "jwt/{user}")
                 .addPathParameter("user", username)
                 .addQueryParameter("admin", String.valueOf(admin))
                 .setPriority(Priority.LOW)
