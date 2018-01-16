@@ -24,7 +24,6 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONArrayRequestListener;
-import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.nexmo.sdk.conversation.client.Conversation;
 import com.nexmo.sdk.conversation.client.ConversationClient;
 import com.nexmo.sdk.conversation.client.Event;
@@ -42,6 +41,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.nexmo.conversationdemo.LoginActivity.API_URL;
 
 public class ChatActivity extends AppCompatActivity {
     private String TAG = ChatActivity.class.getSimpleName();
@@ -112,7 +113,10 @@ public class ChatActivity extends AppCompatActivity {
                 showUsersDialog();
                 return true;
             case R.id.invite_users:
-                inviteUser();
+                getAllUsers();
+                return true;
+            case R.id.leave_conversation:
+                leaveConversation();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -120,22 +124,30 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
-    private void inviteUser() {
-        final EditText input = new EditText(ChatActivity.this);
+    private void leaveConversation() {
+        conversation.leave(new RequestHandler<Void>() {
+            @Override
+            public void onError(NexmoAPIError apiError) {
+                logAndShow(apiError.getMessage());
+            }
+
+            @Override
+            public void onSuccess(Void result) {
+                finish();
+            }
+        });
+    }
+
+    private void showInviteUserDialog(final List<String> names) {
+        final CharSequence[] charSequenceItems = names.toArray(new CharSequence[names.size()]);
         final AlertDialog.Builder dialog = new AlertDialog.Builder(ChatActivity.this)
-                .setTitle("Enter username to invite")
-                .setPositiveButton("Invite", new DialogInterface.OnClickListener() {
+                .setTitle("Select user")
+                .setItems(charSequenceItems, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        joinUser(input.getText().toString());
+                        joinUser(names.get(which));
                     }
                 });
-
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        input.setLayoutParams(lp);
-        dialog.setView(input);
 
         runOnUiThread(new Runnable() {
             @Override
@@ -143,6 +155,33 @@ public class ChatActivity extends AppCompatActivity {
                 dialog.show();
             }
         });
+    }
+
+    private void getAllUsers() {
+        AndroidNetworking.get(API_URL + "users")
+                .setPriority(Priority.LOW)
+                .build()
+                .getAsJSONArray(new JSONArrayRequestListener() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        List<String> names = new ArrayList<>(response.length());
+                        for (int i = 0; i < response.length(); i++) {
+                            try {
+                                JSONObject user = response.getJSONObject(i);
+                                names.add(user.getString("name"));
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        showInviteUserDialog(names);
+                    }
+
+                    @Override
+                    public void onError(ANError anError) {
+                        logAndShow(anError.getMessage());
+                    }
+                });
     }
 
     private void joinUser(String username) {
