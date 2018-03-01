@@ -11,6 +11,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center"
+        android:layout_margin="16dp"
         android:text="Welcome to Awesome Chat. Click the Get Started button!" />
 
     <LinearLayout
