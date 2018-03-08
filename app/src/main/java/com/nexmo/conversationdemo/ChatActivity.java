@@ -34,6 +34,7 @@ import com.nexmo.sdk.conversation.client.Member;
 import com.nexmo.sdk.conversation.client.SeenReceipt;
 import com.nexmo.sdk.conversation.client.audio.AppRTCAudioManager;
 import com.nexmo.sdk.conversation.client.audio.AudioCallEventListener;
+import com.nexmo.sdk.conversation.client.event.EventType;
 import com.nexmo.sdk.conversation.client.event.NexmoAPIError;
 import com.nexmo.sdk.conversation.client.event.RequestHandler;
 import com.nexmo.sdk.conversation.client.event.ResultListener;
@@ -111,7 +112,6 @@ public class ChatActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.chat_menu, menu);
         return true;
-
     }
 
     @Override
@@ -132,7 +132,6 @@ public class ChatActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-
     }
 
     private void requestAudio() {
@@ -149,7 +148,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void toggleAudio() {
         if(AUDIO_ENABLED) {
-            conversation.audio().disable(new RequestHandler<Void>() {
+            conversation.media(Conversation.MEDIA_TYPE.AUDIO).disable(new RequestHandler<Void>() {
                 @Override
                 public void onError(NexmoAPIError apiError) {
                     logAndShow(apiError.getMessage());
@@ -162,7 +161,7 @@ public class ChatActivity extends AppCompatActivity {
                 }
             });
         } else {
-            conversation.audio().enable(new AudioCallEventListener() {
+            conversation.media(Conversation.MEDIA_TYPE.AUDIO).enable(new AudioCallEventListener() {
                 @Override
                 public void onRinging() {
                     logAndShow("Ringing");
