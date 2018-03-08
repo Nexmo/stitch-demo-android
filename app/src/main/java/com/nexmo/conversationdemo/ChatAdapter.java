@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.nexmo.sdk.conversation.client.Conversation;
 import com.nexmo.sdk.conversation.client.Event;
 import com.nexmo.sdk.conversation.client.Member;
+import com.nexmo.sdk.conversation.client.MemberMedia;
 import com.nexmo.sdk.conversation.client.SeenReceipt;
 import com.nexmo.sdk.conversation.client.Text;
 import com.nexmo.sdk.conversation.client.event.EventType;
@@ -64,6 +65,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             } else {
                 holder.seenIcon.setVisibility(View.VISIBLE);
             }
+        } else if (events.get(position).getType().equals(EventType.MEMBER_MEDIA)) {
+            final MemberMedia mediaMessage = (MemberMedia) events.get(position);
+            holder.text.setText(mediaMessage.getMember().getName() + (mediaMessage.isAudioEnabled() ? " enabled" : " disabled") + " audio.");
+            holder.seenIcon.setVisibility(View.INVISIBLE);
         }
     }
 

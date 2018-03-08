@@ -40,7 +40,7 @@ import java.util.List;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = LoginActivity.class.getSimpleName();
     //make sure the url includes a trailing slash
-    public static final String API_URL = "https://chris-guzman.ngrok.io/";
+    public static final String API_URL = "https://nexmo-in-app-demo.glitch.me/";
 
     private Button getStartedBtn;
     private Button chatBtn;

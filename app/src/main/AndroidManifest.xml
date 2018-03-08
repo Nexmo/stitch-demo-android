@@ -3,6 +3,8 @@
     package="com.nexmo.conversationdemo">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:name="com.nexmo.conversationdemo.ConversationClientApplication"
