@@ -7,3 +7,9 @@
 /build
 /captures
 .externalNativeBuild
+
+.nexmo-app
+
+app/google-services.json
+
+private.key

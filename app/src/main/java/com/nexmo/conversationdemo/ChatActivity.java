@@ -34,7 +34,6 @@ import com.nexmo.sdk.conversation.client.Member;
 import com.nexmo.sdk.conversation.client.SeenReceipt;
 import com.nexmo.sdk.conversation.client.audio.AppRTCAudioManager;
 import com.nexmo.sdk.conversation.client.audio.AudioCallEventListener;
-import com.nexmo.sdk.conversation.client.event.EventType;
 import com.nexmo.sdk.conversation.client.event.NexmoAPIError;
 import com.nexmo.sdk.conversation.client.event.RequestHandler;
 import com.nexmo.sdk.conversation.client.event.ResultListener;
@@ -77,7 +76,7 @@ public class ChatActivity extends AppCompatActivity {
         String conversationId = intent.getStringExtra("CONVERSATION_ID");
         conversation = conversationClient.getConversation(conversationId);
 
-        recyclerView = (RecyclerView) findViewById(R.id.recycler);
+        recyclerView = findViewById(R.id.recycler);
         chatAdapter = new ChatAdapter(conversation);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ChatActivity.this);
         recyclerView.setAdapter(chatAdapter);
@@ -93,6 +92,8 @@ public class ChatActivity extends AppCompatActivity {
                 sendMessage();
             }
         });
+
+        setTitle(conversation.getDisplayName());
     }
 
     @Override

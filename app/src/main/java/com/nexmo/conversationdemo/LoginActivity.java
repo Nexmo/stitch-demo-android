@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +22,7 @@ import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONArrayRequestListener;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.nexmo.sdk.conversation.client.Conversation;
 import com.nexmo.sdk.conversation.client.ConversationClient;
 import com.nexmo.sdk.conversation.client.Member;
@@ -40,7 +42,7 @@ import java.util.List;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = LoginActivity.class.getSimpleName();
     //make sure the url includes a trailing slash
-    public static final String API_URL = "https://nexmo-in-app-demo.glitch.me/";
+    public static final String API_URL = "https://nexmo-stitch.glitch.me/api/";
 
     private Button getStartedBtn;
     private Button chatBtn;
@@ -362,6 +364,28 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void goToConversation(final Conversation conversation) {
+        if (!TextUtils.isEmpty(FirebaseInstanceId.getInstance().getToken())) {
+            Log.d(TAG, "Firebase " + FirebaseInstanceId.getInstance().getToken() + " token");
+
+            conversationClient.setPushDeviceToken(FirebaseInstanceId.getInstance().getToken());
+            conversationClient.enableAllPushNotifications(true, new RequestHandler<Void>() {
+                @Override
+                public void onSuccess(Void result) {
+                    logAndShow("push enabled!");
+                    retrieveConversationHistory(conversation);
+                }
+                @Override
+                public void onError(NexmoAPIError error) {
+                    logAndShow(error.getMessage());
+                }
+            });
+
+        } else {
+            Log.d(TAG, "FCM not registered yet");
+        }
+    }
+
+    private void retrieveConversationHistory(final Conversation conversation) {
         conversation.updateEvents(null, null, new RequestHandler<Conversation>() {
             @Override
             public void onError(NexmoAPIError apiError) {
