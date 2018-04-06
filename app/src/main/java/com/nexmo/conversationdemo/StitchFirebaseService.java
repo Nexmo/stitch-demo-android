@@ -34,7 +34,7 @@ public class StitchFirebaseService extends FirebaseMessagingService {
             Log.d(TAG, "cid" + cid);
         }
 
-        showNotification("New notification", "Message text");
+//        showNotification("New notification", "Message text");
         broadcastPayload(cid);
     }
 
