@@ -23,4 +23,9 @@
         android:title="Leave conversation"
         app:showAsAction="ifRoom"/>
 
+    <item android:id="@+id/hangup"
+        android:title="Hang Up Call"
+        android:visible="false"
+        app:showAsAction="ifRoom"/>
+
 </menu>
