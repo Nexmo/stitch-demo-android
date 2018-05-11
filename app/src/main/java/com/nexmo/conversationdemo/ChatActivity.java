@@ -448,7 +448,7 @@ public class ChatActivity extends AppCompatActivity {
         conversationClient.callEvent().add(new ResultListener<Call>() {
             @Override
             public void onSuccess(final Call incomingCall) {
-                logAndShow("answering Call from " + incomingCall.from().getName());
+                logAndShow("answering Call");
                 //Answer an incoming call
                 incomingCall.answer(new RequestHandler<Void>() {
                     @Override
