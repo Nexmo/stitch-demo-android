@@ -27,6 +27,8 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONArrayRequestListener;
+import com.nexmo.sdk.conversation.client.Call;
+import com.nexmo.sdk.conversation.client.CallEvent;
 import com.nexmo.sdk.conversation.client.Conversation;
 import com.nexmo.sdk.conversation.client.ConversationClient;
 import com.nexmo.sdk.conversation.client.Event;
@@ -34,7 +36,6 @@ import com.nexmo.sdk.conversation.client.Member;
 import com.nexmo.sdk.conversation.client.SeenReceipt;
 import com.nexmo.sdk.conversation.client.audio.AppRTCAudioManager;
 import com.nexmo.sdk.conversation.client.audio.AudioCallEventListener;
-import com.nexmo.sdk.conversation.client.event.EventType;
 import com.nexmo.sdk.conversation.client.event.NexmoAPIError;
 import com.nexmo.sdk.conversation.client.event.RequestHandler;
 import com.nexmo.sdk.conversation.client.event.ResultListener;
@@ -46,6 +47,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static android.Manifest.permission.RECORD_AUDIO;
@@ -57,7 +59,6 @@ public class ChatActivity extends AppCompatActivity {
     private String TAG = ChatActivity.class.getSimpleName();
 
     private EditText chatBox;
-    private ImageButton sendBtn;
     private TextView typingNotificationTxt;
     private RecyclerView recyclerView;
     private ChatAdapter chatAdapter;
@@ -65,6 +66,8 @@ public class ChatActivity extends AppCompatActivity {
     private ConversationClient conversationClient;
     private Conversation conversation;
     private SubscriptionList subscriptions = new SubscriptionList();
+    private Call currentCall;
+    private Menu optionsMenu;
 
 
     @Override
@@ -84,7 +87,7 @@ public class ChatActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(linearLayoutManager);
 
         chatBox = (EditText) findViewById(R.id.chat_box);
-        sendBtn = (ImageButton) findViewById(R.id.send_btn);
+        ImageButton sendBtn = (ImageButton) findViewById(R.id.send_btn);
         typingNotificationTxt = (TextView) findViewById(R.id.typing_notification);
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
@@ -93,6 +96,7 @@ public class ChatActivity extends AppCompatActivity {
                 sendMessage();
             }
         });
+
     }
 
     @Override
@@ -115,6 +119,12 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        optionsMenu = menu;
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.view_users:
@@ -129,8 +139,29 @@ public class ChatActivity extends AppCompatActivity {
             case R.id.audio:
                 requestAudio();
                 return true;
+            case R.id.hangup:
+                hangup();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void hangup() {
+        if (currentCall != null) {
+            currentCall.hangup(new RequestHandler<Void>() {
+                @Override
+                public void onError(NexmoAPIError apiError) {
+                    logAndShow("Cannot hangup: " + apiError.toString());
+                }
+
+                @Override
+                public void onSuccess(Void result) {
+                    logAndShow("Call completed.");
+                    showHangUpButton(false);
+                }
+            });
+
         }
     }
 
@@ -314,6 +345,25 @@ public class ChatActivity extends AppCompatActivity {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(ChatActivity.this)
                 .setTitle(member.getName())
                 .setMessage("ID: " + member.getMemberId())
+                .setNeutralButton("Call", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        conversationClient.call(Collections.singletonList(member.getName()), new RequestHandler<Call>() {
+                            @Override
+                            public void onError(NexmoAPIError apiError) {
+                                logAndShow("Cannot initiate call: " + apiError.getMessage());
+                                Log.e(TAG, "onError: ", apiError);
+                            }
+
+                            @Override
+                            public void onSuccess(Call result) {
+                                logAndShow("Waiting for users to join call: " + result.getName());
+                                currentCall = result;
+                                showHangUpButton(true);
+                            }
+                        });
+                    }
+                })
                 .setPositiveButton("Kick", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -393,6 +443,45 @@ public class ChatActivity extends AppCompatActivity {
                 });
             }
         }).addTo(subscriptions);
+
+        //Listen for incoming calls
+        conversationClient.callEvent().add(new ResultListener<Call>() {
+            @Override
+            public void onSuccess(final Call incomingCall) {
+                logAndShow("answering Call");
+                //Answer an incoming call
+                incomingCall.answer(new RequestHandler<Void>() {
+                    @Override
+                    public void onError(NexmoAPIError apiError) {
+                        logAndShow("Error answer: " + apiError.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(Void result) {
+                        currentCall = incomingCall;
+                        attachCallListeners(incomingCall);
+                        showHangUpButton(true);
+                    }
+                });
+            }
+        });
+    }
+
+    private void showHangUpButton(boolean visible) {
+        if (optionsMenu != null) {
+            optionsMenu.findItem(R.id.hangup).setVisible(visible);
+        }
+    }
+
+    private void attachCallListeners(Call incomingCall) {
+        //Listen for incoming member events in a call
+        ResultListener<CallEvent> callEventListener = new ResultListener<CallEvent>() {
+            @Override
+            public void onSuccess(CallEvent message) {
+                Log.d(TAG, "callEvent : state: " + message.getState() + " .content:" + message.toString());
+            }
+        };
+        incomingCall.event().add(callEventListener);
     }
 
     private void sendTypeIndicator(Member.TYPING_INDICATOR typingIndicator) {
