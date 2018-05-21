@@ -1,8 +1,10 @@
 package com.nexmo.conversationdemo;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -13,6 +15,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import java.util.Map;
 
 public class StitchFirebaseService extends FirebaseMessagingService {
+    private static final String NOTIFICATION_CHANNEL_ID = "misc";
     public final String TAG = this.getClass().getName();
     public static final String ACTION_BROADCAST_CID = "com.nexmo.sdk.core.gcm.BROADCAST_CID";
     public static final String MESSAGE_KEY_CID = "conversation_id";
@@ -34,7 +37,7 @@ public class StitchFirebaseService extends FirebaseMessagingService {
             Log.d(TAG, "cid" + cid);
         }
 
-//        showNotification("New notification", "Message text");
+        showNotification("New notification", "Message text");
         broadcastPayload(cid);
     }
 
@@ -50,10 +53,19 @@ public class StitchFirebaseService extends FirebaseMessagingService {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, "misc")
                 .setContentTitle(notificationTitle)
                 .setContentText(payload)
+                .setSmallIcon(R.drawable.ic_send_black_24dp)
                 .setAutoCancel(true);
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         // Build and issue the notification. All pending notifications with same id will be canceled.
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && notificationManager != null) {
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
+                    "Miscellaneous", NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+
+
         if (notificationManager != null) {
             notificationManager.notify(0, notificationBuilder.build());
         }
