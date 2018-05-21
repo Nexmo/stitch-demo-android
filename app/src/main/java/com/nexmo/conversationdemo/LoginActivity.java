@@ -56,9 +56,9 @@ public class LoginActivity extends AppCompatActivity {
 
         conversationClient = ((ConversationClientApplication) getApplication()).getConversationClient();
 
-        loginTxt = (TextView) findViewById(R.id.login_text);
-        getStartedBtn = (Button) findViewById(R.id.get_started);
-        chatBtn = (Button) findViewById(R.id.chat);
+        loginTxt = findViewById(R.id.login_text);
+        getStartedBtn = findViewById(R.id.get_started);
+        chatBtn = findViewById(R.id.chat);
 
         getStartedBtn.setOnClickListener(new View.OnClickListener() {
             @Override

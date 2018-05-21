@@ -86,9 +86,9 @@ public class ChatActivity extends AppCompatActivity {
         recyclerView.setAdapter(chatAdapter);
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        chatBox = (EditText) findViewById(R.id.chat_box);
-        ImageButton sendBtn = (ImageButton) findViewById(R.id.send_btn);
-        typingNotificationTxt = (TextView) findViewById(R.id.typing_notification);
+        chatBox = findViewById(R.id.chat_box);
+        ImageButton sendBtn = findViewById(R.id.send_btn);
+        typingNotificationTxt = findViewById(R.id.typing_notification);
 
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
