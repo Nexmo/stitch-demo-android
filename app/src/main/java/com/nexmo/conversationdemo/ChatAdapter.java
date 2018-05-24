@@ -26,11 +26,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
     private static final String TAG = "ChatAdapter";
     private Member self;
-    private List<Event> events = new ArrayList<>();
+    private Conversation conversation;
 
-    public ChatAdapter(Conversation conversation) {
+    ChatAdapter(Conversation conversation) {
         self = conversation.getSelf();
-        events = conversation.getEvents();
+        this.conversation = conversation;
     }
 
     @Override
@@ -44,8 +44,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ChatAdapter.ViewHolder holder, int position) {
-        if (events.get(position).getType().equals(EventType.TEXT)) {
-            final Text textMessage = (Text) events.get(position);
+        if (conversation.getEvents().get(position).getType().equals(EventType.TEXT)) {
+            final Text textMessage = (Text) conversation.getEvents().get(position);
             if (!textMessage.getMember().equals(self) && !memberHasSeen(textMessage)) {
                 textMessage.markAsSeen(new RequestHandler<SeenReceipt>() {
                     @Override
@@ -65,8 +65,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             } else {
                 holder.seenIcon.setVisibility(View.VISIBLE);
             }
-        } else if (events.get(position).getType().equals(EventType.MEMBER_MEDIA)) {
-            final MemberMedia mediaMessage = (MemberMedia) events.get(position);
+        } else if (conversation.getEvents().get(position).getType().equals(EventType.MEMBER_MEDIA)) {
+            final MemberMedia mediaMessage = (MemberMedia) conversation.getEvents().get(position);
             holder.text.setText(mediaMessage.getMember().getName() + (mediaMessage.isAudioEnabled() ? " enabled" : " disabled") + " audio.");
             holder.seenIcon.setVisibility(View.INVISIBLE);
         }
@@ -85,7 +85,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return events.size();
+        return conversation.getEvents().size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -94,8 +94,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
         public ViewHolder(View itemView) {
             super(itemView);
-            text = (TextView) itemView.findViewById(R.id.item_chat_txt);
-            seenIcon = (ImageView) itemView.findViewById(R.id.item_chat_seen_img);
+            text = itemView.findViewById(R.id.item_chat_txt);
+            seenIcon = itemView.findViewById(R.id.item_chat_seen_img);
         }
     }
 }

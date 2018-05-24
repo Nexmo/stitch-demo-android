@@ -81,10 +81,10 @@ public class ChatActivity extends AppCompatActivity {
         conversation = conversationClient.getConversation(conversationId);
 
         recyclerView = findViewById(R.id.recycler);
-        chatAdapter = new ChatAdapter(conversation);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ChatActivity.this);
-        recyclerView.setAdapter(chatAdapter);
         recyclerView.setLayoutManager(linearLayoutManager);
+        chatAdapter = new ChatAdapter(conversation);
+        recyclerView.setAdapter(chatAdapter);
 
         chatBox = findViewById(R.id.chat_box);
         ImageButton sendBtn = findViewById(R.id.send_btn);
@@ -98,6 +98,7 @@ public class ChatActivity extends AppCompatActivity {
         });
 
         setTitle(conversation.getDisplayName());
+        retrieveConversationHistory(conversation);
     }
 
     @Override
@@ -146,6 +147,26 @@ public class ChatActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void retrieveConversationHistory(final Conversation conversation) {
+        conversation.updateEvents(null, null, new RequestHandler<Conversation>() {
+            @Override
+            public void onError(NexmoAPIError apiError) {
+                Log.e(TAG, " updateEvents onError: ", apiError);
+                logAndShow("Error Updating Conversation: " + apiError.getMessage());
+            }
+
+            @Override
+            public void onSuccess(final Conversation result) {
+                showConversationHistory(result);
+            }
+        });
+    }
+
+    private void showConversationHistory(Conversation result) {
+        this.conversation = result;
+        chatAdapter.notifyDataSetChanged();
     }
 
     private void hangup() {

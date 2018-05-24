@@ -18,19 +18,15 @@ public class StitchFirebaseService extends FirebaseMessagingService {
     private static final String NOTIFICATION_CHANNEL_ID = "misc";
     public final String TAG = this.getClass().getName();
     public static final String ACTION_BROADCAST_CID = "com.nexmo.sdk.core.gcm.BROADCAST_CID";
-    public static final String MESSAGE_KEY_CID = "conversation_id";
-    public static final String MESSAGE_KEY_TITLE = "title";
+    public static final String MESSAGE_KEY_CID = "CONVERSATION_ID";
 
-    public StitchFirebaseService() {
-    }
-
+    public StitchFirebaseService() {}
 
     @Override
     public void onMessageReceived(RemoteMessage message){
-        Log.d(TAG, message.toString());
-        String from = message.getFrom();
         Map data = message.getData();
-        Log.d(TAG, data.toString());
+        Log.d(TAG, "Data: " + data.toString());
+
         String cid = null;
         if (data.containsKey(MESSAGE_KEY_CID)) {
             cid = (String) data.get(MESSAGE_KEY_CID);

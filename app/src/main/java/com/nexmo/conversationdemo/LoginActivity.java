@@ -42,7 +42,7 @@ import java.util.List;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = LoginActivity.class.getSimpleName();
     //make sure the url includes a trailing slash
-    public static final String API_URL = "https://nexmo-stitch.glitch.me/api/";
+    public static final String API_URL = "https://nexmo-in-app-demo.glitch.me/";
 
     private Button getStartedBtn;
     private Button chatBtn;
@@ -372,7 +372,7 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Void result) {
                     logAndShow("push enabled!");
-                    retrieveConversationHistory(conversation);
+                    startChatActivity(conversation);
                 }
                 @Override
                 public void onError(NexmoAPIError error) {
