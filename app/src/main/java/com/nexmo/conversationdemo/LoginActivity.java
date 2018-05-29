@@ -376,7 +376,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 @Override
                 public void onError(NexmoAPIError error) {
-                    logAndShow(error.getMessage());
+                    logAndShow("Error with push" + error.getMessage());
                 }
             });
 

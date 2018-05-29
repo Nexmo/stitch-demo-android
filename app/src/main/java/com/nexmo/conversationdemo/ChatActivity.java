@@ -78,7 +78,23 @@ public class ChatActivity extends AppCompatActivity {
         conversationClient = ((ConversationClientApplication) getApplication()).getConversationClient();
         Intent intent = getIntent();
         String conversationId = intent.getStringExtra("CONVERSATION_ID");
+        boolean pendingInvitation = intent.getBooleanExtra("PENDING_INVITATION", false);
+
         conversation = conversationClient.getConversation(conversationId);
+
+        if (pendingInvitation) {
+            conversation.join(new RequestHandler<Member>() {
+                @Override
+                public void onError(NexmoAPIError apiError) {
+                    logAndShow(apiError.getMessage());
+                }
+
+                @Override
+                public void onSuccess(Member result) {
+                    retrieveConversationHistory(conversation);
+                }
+            });
+        }
 
         recyclerView = findViewById(R.id.recycler);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ChatActivity.this);

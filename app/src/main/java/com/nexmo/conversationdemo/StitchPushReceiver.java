@@ -129,7 +129,7 @@ public class StitchPushReceiver extends BroadcastReceiver {
             Intent resultIntent = new Intent(context, ChatActivity.class);
             resultIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             resultIntent.putExtra("CONVERSATION_ID", conversation.getConversationId());
-            resultIntent.putExtra("INTENT_PENDING", pendingInvitation);
+            resultIntent.putExtra("PENDING_INVITATION", pendingInvitation);
             TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
             stackBuilder.addNextIntent(resultIntent);
             PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(
