@@ -21,6 +21,7 @@ import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONArrayRequestListener;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
+import com.nexmo.sdk.conversation.client.Call;
 import com.nexmo.sdk.conversation.client.Conversation;
 import com.nexmo.sdk.conversation.client.ConversationClient;
 import com.nexmo.sdk.conversation.client.Member;
@@ -40,7 +41,7 @@ import java.util.List;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = LoginActivity.class.getSimpleName();
     //make sure the url includes a trailing slash
-    public static final String API_URL = "https://nexmo-stitch.glitch.me/api/";
+    public static final String API_URL = "https://nexmo-in-app-demo.glitch.me/";
 
     private Button getStartedBtn;
     private Button chatBtn;
@@ -184,12 +185,69 @@ public class LoginActivity extends AppCompatActivity {
                         retrieveConversations();
                     }
                 })
+                .setNeutralButton("Call PSTN Phone", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startCallActivity();
+                    }
+                })
                 .setNegativeButton("Create Conversation", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         createConversation();
                     }
                 }).show();
+    }
+
+    private void startCallActivity() {
+        startCallPhone();
+//        startActivity(new Intent(LoginActivity.this, CallActivity.class));
+    }
+
+    private void startCallPhone() {
+        final EditText input = new EditText(LoginActivity.this);
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(LoginActivity.this)
+                .setTitle("Call which number?")
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        conversationClient.callPhone(input.getText().toString(), new RequestHandler<Call>() {
+                            @Override
+                            public void onError(NexmoAPIError apiError) {
+                                logAndShow(apiError.getMessage());
+                            }
+
+                            @Override
+                            public void onSuccess(Call result) {
+                                switch(result.getCallState()) {
+                                    case STARTED:
+                                        logAndShow("started");
+                                        break;
+                                    case RINGING:
+                                        logAndShow("ringing");
+                                        break;
+                                    case ANSWERED:
+                                        logAndShow("answered");
+                                        break;
+                                }
+
+                            }
+                        });
+                    }
+                });
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+        dialog.setView(input);
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                dialog.show();
+            }
+        });
     }
 
     private void createConversation() {
