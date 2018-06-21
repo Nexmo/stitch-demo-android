@@ -34,14 +34,20 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     implementation 'com.android.support:appcompat-v7:25.4.0'
-    implementation 'com.nexmo:stitch:1.1.0'
+    implementation 'com.nexmo:stitch:1.4.0'
     implementation 'com.android.support:recyclerview-v7:25.4.0'
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.amitshekhar.android:android-networking:1.0.0'
     implementation 'com.amitshekhar.android:jackson-android-networking:1.0.0'
     testImplementation 'junit:junit:4.12'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:1.1.51"
 }
+
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
