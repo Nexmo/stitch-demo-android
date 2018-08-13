@@ -27,6 +27,7 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.Priority;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONArrayRequestListener;
+import com.nexmo.conversationdemo.utils.Stitch;
 import com.nexmo.sdk.conversation.client.Call;
 import com.nexmo.sdk.conversation.client.CallEvent;
 import com.nexmo.sdk.conversation.client.Conversation;
@@ -53,7 +54,7 @@ import java.util.List;
 import static android.Manifest.permission.RECORD_AUDIO;
 import static com.nexmo.conversationdemo.LoginActivity.API_URL;
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends BaseActivity {
     private static final int PERMISSION_REQUEST_AUDIO = 0;
     private boolean AUDIO_ENABLED = false;
     private String TAG = ChatActivity.class.getSimpleName();
@@ -75,7 +76,7 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        conversationClient = ((ConversationClientApplication) getApplication()).getConversationClient();
+        conversationClient = Stitch.Companion.getInstance(this.getApplicationContext()).getConversationClient();
         Intent intent = getIntent();
         String conversationId = intent.getStringExtra("CONVERSATION_ID");
         boolean pendingInvitation = intent.getBooleanExtra("PENDING_INVITATION", false);
@@ -570,16 +571,6 @@ public class ChatActivity extends AppCompatActivity {
                         chatBox.setText(null);
                     }
                 });
-            }
-        });
-    }
-
-    private void logAndShow(final String message) {
-        Log.d(TAG, message);
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(ChatActivity.this, message, Toast.LENGTH_SHORT).show();
             }
         });
     }

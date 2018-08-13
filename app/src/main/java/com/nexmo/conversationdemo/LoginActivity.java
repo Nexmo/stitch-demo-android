@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.JSONArrayRequestListener;
 import com.androidnetworking.interfaces.JSONObjectRequestListener;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.nexmo.conversationdemo.utils.Stitch;
 import com.nexmo.sdk.conversation.client.Conversation;
 import com.nexmo.sdk.conversation.client.ConversationClient;
 import com.nexmo.sdk.conversation.client.Member;
@@ -39,7 +41,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivity {
     private static final String TAG = LoginActivity.class.getSimpleName();
     //make sure the url includes a trailing slash
     public static final String API_URL = "https://nexmo-in-app-demo.glitch.me/";
@@ -48,14 +50,16 @@ public class LoginActivity extends AppCompatActivity {
     private Button chatBtn;
     private ConversationClient conversationClient;
     private TextView loginTxt;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        conversationClient = ((ConversationClientApplication) getApplication()).getConversationClient();
+        conversationClient = Stitch.Companion.getInstance(this.getApplicationContext()).getConversationClient();
 
+        progressBar = findViewById(R.id.login_progress);
         loginTxt = findViewById(R.id.login_text);
         getStartedBtn = findViewById(R.id.get_started);
         chatBtn = findViewById(R.id.chat);
@@ -230,6 +234,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void authenticate(String username, boolean admin) {
+        showProgress(true);
         AndroidNetworking.get(API_URL + "jwt/{user}")
                 .addPathParameter("user", username)
                 .addQueryParameter("admin", String.valueOf(admin))
@@ -254,6 +259,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(final List<String> names) {
+        showProgress(false);
         final CharSequence[] charSequenceItems = names.toArray(new CharSequence[names.size()]);
         final AlertDialog.Builder dialog = new AlertDialog.Builder(LoginActivity.this)
                 .setTitle("Select user")
@@ -273,6 +279,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void getAllUsers() {
+        showProgress(true);
         AndroidNetworking.get(API_URL + "users")
                 .setPriority(Priority.LOW)
                 .build()
@@ -306,6 +313,7 @@ public class LoginActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        showProgress(false);
                         loginTxt.setText("Login Error: " + apiError.getMessage());
                     }
                 });
@@ -319,6 +327,7 @@ public class LoginActivity extends AppCompatActivity {
                 retrieveConversations();
             }
         });
+
     }
 
     private void retrieveConversations() {
@@ -326,6 +335,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onError(NexmoAPIError apiError) {
                 logAndShow("Error listing conversations: " + apiError.getMessage());
+                showProgress(false);
             }
 
             @Override
@@ -335,8 +345,10 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     logAndShow("You are not a member of any conversations");
                 }
+                showProgress(false);
             }
         });
+
     }
 
     private void showConversationList(final List<Conversation> conversationList) {
@@ -385,24 +397,6 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void retrieveConversationHistory(final Conversation conversation) {
-        conversation.updateEvents(null, null, new RequestHandler<Conversation>() {
-            @Override
-            public void onError(NexmoAPIError apiError) {
-                Log.e(TAG, " updateEvents onError: ", apiError);
-                logAndShow("Error Updating Conversation: " + apiError.getMessage());
-                if (apiError.getType().equals("conversation:events:success")) {
-                    startChatActivity(conversation);
-                }
-            }
-
-            @Override
-            public void onSuccess(final Conversation result) {
-                startChatActivity(conversation);
-            }
-        });
-    }
-
     private void startChatActivity(final Conversation conversation) {
         runOnUiThread(new Runnable() {
             @Override
@@ -440,12 +434,11 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void logAndShow(final String message) {
-        Log.d(TAG, message);
+    private void showProgress(final boolean show) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
             }
         });
     }

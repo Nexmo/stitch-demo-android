@@ -50,6 +50,7 @@ public class StitchPushReceiver extends BroadcastReceiver {
                         Log.d(TAG, PushNotification.ACTION_TYPE_TEXT);
                         Text text = bundle.getParcelable(Text.class.getSimpleName());
                         Log.d(TAG, text != null ? text.toString() : null);
+                        showNotification(context, text);
                         break;
                     }
                     case PushNotification.ACTION_TYPE_IMAGE: {
